@@ -1,0 +1,4 @@
+function c = add2(a,b)
+c = a + b;
+
+end
