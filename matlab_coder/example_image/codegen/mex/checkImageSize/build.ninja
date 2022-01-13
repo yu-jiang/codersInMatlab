@@ -1,0 +1,54 @@
+# CompilerName=msvc160
+# Mode=optim
+ninja_required_version = 1.3
+
+# Basic folders
+root = .
+builddir = $root\build\win64
+matlabdir = C:\Program Files\MATLAB\R2020b
+startdir = C:\git\worklog\codegenjunk
+
+# Toolchain information
+cc = cl
+cxx = cl
+linker = link
+linkerxx = link
+
+cflags =  /c /Zp8 /GR /W3 /EHs /nologo /MD /D_CRT_SECURE_NO_DEPRECATE /D_SCL_SECURE_NO_DEPRECATE /D_SECURE_SCL=0   /DMATLAB_MEX_FILE  /DMATLAB_MEX_FILE /O2 /Oy- /DNDEBUG /fp:strict /I "$root" /I "$startdir" /I "$matlabdir\extern\include" /I "$root\interface" /I "." -DMODEL=checkImageSize_mex  
+
+cxxflags =   /c /Zp8 /GR /W3 /EHs /nologo /MD /D_CRT_SECURE_NO_DEPRECATE /D_SCL_SECURE_NO_DEPRECATE /D_SECURE_SCL=0   /DMATLAB_MEX_FILE  /DMATLAB_MEX_FILE /O2 /Oy- /DNDEBUG /fp:strict /I "$root" /I "$startdir" /I "$matlabdir\extern\include" /I "$root\interface" /I "." -DMODEL=checkImageSize_mex  
+
+ldflags =  /nologo /manifest   /DLL /LIBPATH:"$matlabdir\extern\lib\win64\microsoft" libmx.lib libmex.lib libmat.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib  /out:"checkImageSize_mex.mexw64" libemlrt.lib libcovrt.lib libut.lib libmwmathutil.lib  "$matlabdir\extern\lib\win64\microsoft\libmwjpegreader.lib" /export:mexFunction /export:mexfilerequiredapiversion /export:emlrtMexFcnProperties /export:checkImageSize /export:checkImageSize_initialize /export:checkImageSize_terminate /export:checkImageSize_atexit /export:feval /export:emxFree_int8_T /export:emxFree_uint8_T /export:emxEnsureCapacity_int8_T /export:emxEnsureCapacity_uint8_T /export:emxInit_uint8_T /export:emxInit_int8_T /export:emxFree_char_T /export:emxInit_char_T /export:emxEnsureCapacity_char_T
+
+# Build Rules
+rule cc
+    command = $cc $cflags $in /Fo$out
+
+rule cxx
+    command = $cxx $cxxflags $in /Fo$out
+
+rule link
+    command = $linker @$out.rsp $ldflags
+    rspfile = $out.rsp
+    rspfile_content = $in
+
+rule linkxx
+    command = $linkerxx $in $ldflags
+
+# Build
+build $builddir\checkImageSize_data.obj : cc $root\checkImageSize_data.c
+build $builddir\rt_nonfinite.obj : cc $root\rt_nonfinite.c
+build $builddir\checkImageSize_initialize.obj : cc $root\checkImageSize_initialize.c
+build $builddir\checkImageSize_terminate.obj : cc $root\checkImageSize_terminate.c
+build $builddir\checkImageSize.obj : cc $root\checkImageSize.c
+build $builddir\warning.obj : cc $root\warning.c
+build $builddir\fileManager.obj : cc $root\fileManager.c
+build $builddir\_coder_checkImageSize_api.obj : cc $root\interface\_coder_checkImageSize_api.c
+build $builddir\_coder_checkImageSize_mex.obj : cc $root\interface\_coder_checkImageSize_mex.c
+build $builddir\checkImageSize_emxutil.obj : cc $root\checkImageSize_emxutil.c
+build $builddir\checkImageSize_mexutil.obj : cc $root\checkImageSize_mexutil.c
+build $builddir\_coder_checkImageSize_info.obj : cc $root\interface\_coder_checkImageSize_info.c
+build $builddir\c_mexapi_version.obj : cc $matlabdir\extern\version\c_mexapi_version.c
+
+# Link
+build $root\checkImageSize_mex.mexw64 : link $builddir\checkImageSize_data.obj $builddir\rt_nonfinite.obj $builddir\checkImageSize_initialize.obj $builddir\checkImageSize_terminate.obj $builddir\checkImageSize.obj $builddir\warning.obj $builddir\fileManager.obj $builddir\_coder_checkImageSize_api.obj $builddir\_coder_checkImageSize_mex.obj $builddir\checkImageSize_emxutil.obj $builddir\checkImageSize_mexutil.obj $builddir\_coder_checkImageSize_info.obj $builddir\c_mexapi_version.obj 
